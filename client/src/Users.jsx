@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import { apiFetch } from './api'
 
 const emptyForm = { name: '', email: '' }
 
-export default function Users() {
+export default function Users({ onLogout }) {
   const [users, setUsers] = useState([])
   const [form, setForm] = useState(emptyForm)
   const [editId, setEditId] = useState(null)
@@ -11,7 +12,8 @@ export default function Users() {
   useEffect(() => { loadUsers() }, [])
 
   async function loadUsers() {
-    const res = await fetch('/api/users')
+    const res = await apiFetch('/api/users')
+    if (res.status === 401) return onLogout()
     setUsers(await res.json())
   }
 
@@ -20,11 +22,7 @@ export default function Users() {
     setError('')
     const method = editId ? 'PUT' : 'POST'
     const url = editId ? `/api/users/${editId}` : '/api/users'
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+    const res = await apiFetch(url, { method, body: JSON.stringify(form) })
     const data = await res.json()
     if (!res.ok) return setError(data.error)
     setForm(emptyForm)
@@ -46,7 +44,7 @@ export default function Users() {
 
   async function handleDelete(id) {
     if (!confirm('Delete this user?')) return
-    await fetch(`/api/users/${id}`, { method: 'DELETE' })
+    await apiFetch(`/api/users/${id}`, { method: 'DELETE' })
     loadUsers()
   }
 
