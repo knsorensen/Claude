@@ -39,6 +39,7 @@ Development/
 │   │   ├── Login.jsx            # Login and register page
 │   │   ├── Users.jsx            # Users management UI (CRUD)
 │   │   ├── Companies.jsx        # Company search (brreg.no) and saved companies UI
+│   │   ├── CompanyDetail.jsx    # Company detail modal — fetches full data from brreg.no
 │   │   ├── index.css            # Global stylesheet — CSS custom properties, all shared styles
 │   │   └── App.css              # App-level styles (minimal)
 │   └── vite.config.js           # Proxies /api -> localhost:3001
@@ -112,6 +113,7 @@ CREATE TABLE companies (
 
 ### Companies (Bearer token required)
 - `GET    /api/companies/search?q=` — Search brreg.no by name or org. number (digits = org. no.)
+- `GET    /api/companies/details/:orgNumber` — Full company details from brreg.no (website, phone, industries, addresses, VAT, bankruptcy)
 - `GET    /api/companies` — List saved companies
 - `POST   /api/companies` — Save a company (upserts on org_number)
 - `DELETE /api/companies/:id` — Remove a saved company

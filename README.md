@@ -32,6 +32,7 @@ Development/
 │   │   ├── Login.jsx            # Login and register page
 │   │   ├── Users.jsx            # Users management UI
 │   │   ├── Companies.jsx        # Company search and saved companies UI
+│   │   ├── CompanyDetail.jsx    # Company detail modal (full brreg.no data)
 │   │   ├── index.css            # Global stylesheet — CSS custom properties
 │   │   └── App.css              # App-level styles
 │   └── vite.config.js           # Proxies /api -> localhost:3001
@@ -86,10 +87,11 @@ Register an account to get started. Use the navigation in the header to switch b
 
 | Method | Endpoint                    | Body        | Description                        |
 |--------|-----------------------------|-------------|------------------------------------|
-| GET    | /api/companies/search?q=    |             | Search brreg.no by name or org. no.|
-| GET    | /api/companies              |             | List saved companies               |
-| POST   | /api/companies              | company obj | Save a company to the database     |
-| DELETE | /api/companies/:id          |             | Remove a saved company             |
+| GET    | /api/companies/search?q=          |             | Search brreg.no by name or org. no.   |
+| GET    | /api/companies/details/:orgNumber |             | Full company details from brreg.no    |
+| GET    | /api/companies                    |             | List saved companies                  |
+| POST   | /api/companies                    | company obj | Save a company to the database        |
+| DELETE | /api/companies/:id                |             | Remove a saved company                |
 
 ## Database
 
@@ -130,7 +132,8 @@ CREATE TABLE companies (
 - JWT authentication — register, login, sign out with confirmation dialog
 - Passwords hashed with bcrypt; all routes protected with JWT middleware
 - Company search via brreg.no (Brønnøysundregistrene) — by name or org. number
-- Search results displayed in table; single click to save to database
-- Saved companies persisted in PostgreSQL with remove option
+- Company detail modal — full data including address, phone, website, industry codes, VAT status, bankruptcy flags
+- Search results displayed in table; click name or View to open detail, Save to store in database
+- Saved companies persisted in PostgreSQL with detail view and remove option
 - Page navigation in header — Users and Companies pages
 - Global CSS stylesheet with custom properties — clean light theme, no CSS framework
