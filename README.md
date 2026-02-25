@@ -99,8 +99,9 @@ CREATE TABLE users (
 
 ## Current State
 
-- JWT authentication — register, login, sign out
+- JWT authentication — register, login, sign out with confirmation dialog
 - Passwords hashed with bcrypt
 - All user routes protected with JWT middleware
 - Frontend automatically attaches token to every API request
 - Token stored in localStorage; expired tokens trigger automatic sign out
+- Sign out requires confirmation via modal dialog

@@ -34,7 +34,7 @@ Development/
 ├── client/                      # React frontend (port 5173)
 │   ├── src/
 │   │   ├── api.js               # Fetch helper — injects Bearer token automatically
-│   │   ├── App.jsx              # App shell — manages auth state
+│   │   ├── App.jsx              # App shell — manages auth state and logout confirmation dialog
 │   │   ├── Login.jsx            # Login and register page
 │   │   └── Users.jsx            # Users management UI (CRUD)
 │   └── vite.config.js           # Proxies /api -> localhost:3001
