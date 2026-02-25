@@ -105,3 +105,4 @@ CREATE TABLE users (
 - Frontend automatically attaches token to every API request
 - Token stored in localStorage; expired tokens trigger automatic sign out
 - Sign out requires confirmation via modal dialog
+- Global CSS stylesheet with custom properties — clean light theme, no CSS framework

@@ -36,7 +36,9 @@ Development/
 │   │   ├── api.js               # Fetch helper — injects Bearer token automatically
 │   │   ├── App.jsx              # App shell — manages auth state and logout confirmation dialog
 │   │   ├── Login.jsx            # Login and register page
-│   │   └── Users.jsx            # Users management UI (CRUD)
+│   │   ├── Users.jsx            # Users management UI (CRUD)
+│   │   ├── index.css            # Global stylesheet — CSS custom properties, all shared styles
+│   │   └── App.css              # App-level styles (minimal)
 │   └── vite.config.js           # Proxies /api -> localhost:3001
 ├── .gitignore
 ├── README.md
@@ -105,7 +107,8 @@ CREATE TABLE users (
 - Protect routes by adding `requireAuth` middleware from `server/middleware/auth.js`
 - Frontend components go in `client/src/`
 - Always use `apiFetch` (not raw `fetch`) for authenticated API calls in the frontend
-- Use inline styles in React components (no CSS framework)
+- All styles go in `client/src/index.css` using CSS custom properties — no inline styles, no CSS framework
+- Use CSS classes defined in `index.css`; component-scoped styles go in a matching `.module.css` file if needed
 - Always use parameterised queries (`$1, $2`) — never string-interpolate SQL
 - Never expose `password_hash` in API responses — use explicit column selects
 - `.env` files are gitignored — never commit secrets
