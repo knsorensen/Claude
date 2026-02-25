@@ -28,7 +28,8 @@ Development/
 │   ├── routes/
 │   │   ├── auth.js              # Register and login routes
 │   │   ├── users.js             # Users CRUD routes (protected)
-│   │   └── companies.js         # Company search + saved companies (protected)
+│   │   ├── companies.js         # Company search + saved companies (protected)
+│   │   └── persons.js           # Person search — platform links + TikTok oEmbed (protected)
 │   ├── index.js                 # Entry point and route registration
 │   ├── db.js                    # PostgreSQL connection pool
 │   └── .env                     # Environment variables (not committed)
@@ -40,6 +41,7 @@ Development/
 │   │   ├── Users.jsx            # Users management UI (CRUD)
 │   │   ├── Companies.jsx        # Company search (brreg.no) and saved companies UI
 │   │   ├── CompanyDetail.jsx    # Company detail modal — fetches full data from brreg.no
+│   │   ├── Persons.jsx          # Person search across Facebook, LinkedIn, TikTok, Snapchat
 │   │   ├── index.css            # Global stylesheet — CSS custom properties, all shared styles
 │   │   └── App.css              # App-level styles (minimal)
 │   └── vite.config.js           # Proxies /api -> localhost:3001
@@ -110,6 +112,9 @@ CREATE TABLE companies (
 - `POST   /api/users` — `{ name, email }` → create user
 - `PUT    /api/users/:id` — `{ name, email }` → update user
 - `DELETE /api/users/:id` — Delete a user
+
+### Persons (Bearer token required)
+- `GET    /api/persons/search?q=&municipality=` — Search query can be a full name or @username. Returns platform links (Facebook, LinkedIn, TikTok, Snapchat) + TikTok oEmbed profile data when a @username is given. Municipality appended to name searches on FB/LinkedIn.
 
 ### Companies (Bearer token required)
 - `GET    /api/companies/search?q=` — Search brreg.no by name or org. number (digits = org. no.)

@@ -3,10 +3,12 @@ import { getToken, clearToken } from './api'
 import Login from './Login'
 import Users from './Users'
 import Companies from './Companies'
+import Persons from './Persons'
 import './App.css'
 
 const PAGES = [
   { id: 'Companies', label: 'Companies', icon: '🏢' },
+  { id: 'Persons',   label: 'Persons',   icon: '🔍' },
   { id: 'Users',     label: 'Users',     icon: '👥' },
 ]
 
@@ -57,8 +59,9 @@ function App() {
 
       {/* Main */}
       <div className="main-content">
-        {page === 'Users'     && <Users onLogout={handleLogout} />}
+        {page === 'Users'     && <Users     onLogout={handleLogout} />}
         {page === 'Companies' && <Companies onLogout={handleLogout} />}
+        {page === 'Persons'   && <Persons   onLogout={handleLogout} />}
       </div>
 
       {/* Logout confirm */}

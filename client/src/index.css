@@ -557,3 +557,89 @@ tbody tr:hover { background: var(--color-bg); }
 
 .detail-dl a { color: var(--color-primary); text-decoration: none; }
 .detail-dl a:hover { text-decoration: underline; }
+
+/* ── Platform / Person Search ───────────────────── */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.platform-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.platform-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.platform-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.platform-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.platform-hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.platform-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.platform-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-border);
+}
+
+.platform-profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.platform-profile-sub {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.platform-no-search {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.platform-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 4px;
+}
