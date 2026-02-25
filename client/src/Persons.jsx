@@ -105,8 +105,11 @@ export default function Persons({ onLogout }) {
         </form>
         {error && <p className="error-msg" style={{ marginTop: '10px' }}>{error}</p>}
         <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
-          Enter a full name to get platform search links, or <strong>@username</strong> to look up a specific handle.
+          Enter a full name to search, or <strong>@username</strong> to look up a specific handle.
           Municipality is added to name searches on Facebook and LinkedIn.
+          {results && !results.google_enabled && (
+            <span className="google-disabled-note"> Google profile search is not configured — add GOOGLE_API_KEY and GOOGLE_CSE_ID to server/.env to enable it.</span>
+          )}
         </p>
       </div>
 
@@ -118,7 +121,13 @@ export default function Persons({ onLogout }) {
           </h3>
           <div className="platform-grid">
             {Object.entries(results.platforms).map(([id, p]) => (
-              <PlatformCard key={id} id={id} platform={p} isUsername={results.is_username} />
+              <PlatformCard
+                key={id}
+                id={id}
+                platform={p}
+                isUsername={results.is_username}
+                googleEnabled={results.google_enabled}
+              />
             ))}
           </div>
         </>
@@ -127,32 +136,23 @@ export default function Persons({ onLogout }) {
   )
 }
 
-function PlatformCard({ id, platform, isUsername }) {
-  const meta = PLATFORM_META[id] || {}
-  const { color, bg, hint, Icon } = meta
+function PlatformCard({ id, platform, isUsername, googleEnabled }) {
+  const { color, bg, hint, Icon } = PLATFORM_META[id] || {}
 
   return (
     <div className="platform-card" style={{ borderTop: `3px solid ${color}` }}>
       <div className="platform-card-header">
-        <span className="platform-icon" style={{ color }}>
-          {Icon && <Icon />}
-        </span>
+        <span className="platform-icon" style={{ color }}>{Icon && <Icon />}</span>
         <span className="platform-name" style={{ color }}>{platform.name}</span>
       </div>
 
-      {hint && (
-        <p className="platform-hint">{hint}</p>
-      )}
+      {hint && <p className="platform-hint">{hint}</p>}
 
-      {/* TikTok profile data from oEmbed */}
+      {/* TikTok oEmbed profile (from @username or from top Google result) */}
       {platform.profile && (
         <div className="platform-profile" style={{ background: bg }}>
           {platform.profile.thumbnail && (
-            <img
-              src={platform.profile.thumbnail}
-              alt={platform.profile.display_name}
-              className="platform-avatar"
-            />
+            <img src={platform.profile.thumbnail} alt={platform.profile.display_name} className="platform-avatar" />
           )}
           <div>
             <div className="platform-profile-name">{platform.profile.display_name}</div>
@@ -161,8 +161,39 @@ function PlatformCard({ id, platform, isUsername }) {
         </div>
       )}
 
-      {/* Snapchat: no search URL, username-only */}
-      {id === 'snapchat' && !isUsername && (
+      {/* Google-found profiles */}
+      {!isUsername && googleEnabled && (
+        <div className="google-profiles">
+          {platform.google_profiles.length > 0 ? (
+            <>
+              <div className="google-profiles-label">
+                Found via Google ({platform.google_profiles.length})
+              </div>
+              {platform.google_profiles.map((gp, i) => (
+                <div key={i} className="google-profile-item">
+                  <div className="google-profile-username">@{gp.username}</div>
+                  {gp.title   && <div className="google-profile-name">{gp.title}</div>}
+                  {gp.snippet && <div className="google-profile-snippet">{gp.snippet}</div>}
+                  <a
+                    href={gp.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline btn-sm"
+                    style={{ marginTop: '6px', alignSelf: 'flex-start' }}
+                  >
+                    Open
+                  </a>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="google-profiles-label">No profiles found via Google</div>
+          )}
+        </div>
+      )}
+
+      {/* Snapchat username-only note */}
+      {id === 'snapchat' && !isUsername && !googleEnabled && (
         <p className="platform-no-search">Snapchat requires a @username — no general search available.</p>
       )}
 

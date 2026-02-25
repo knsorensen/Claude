@@ -114,7 +114,7 @@ CREATE TABLE companies (
 - `DELETE /api/users/:id` — Delete a user
 
 ### Persons (Bearer token required)
-- `GET    /api/persons/search?q=&municipality=` — Search query can be a full name or @username. Returns platform links (Facebook, LinkedIn, TikTok, Snapchat) + TikTok oEmbed profile data when a @username is given. Municipality appended to name searches on FB/LinkedIn.
+- `GET    /api/persons/search?q=&municipality=` — Search query can be a full name or @username. Returns platform links (Facebook, LinkedIn, TikTok, Snapchat) + TikTok oEmbed profile data. For plain name queries, runs 4 parallel Google Custom Search calls (`site:` per platform) and extracts usernames from result URLs. Requires `GOOGLE_API_KEY` + `GOOGLE_CSE_ID` in `.env` for Google features; degrades gracefully without them.
 
 ### Companies (Bearer token required)
 - `GET    /api/companies/search?q=` — Search brreg.no by name or org. number (digits = org. no.)
