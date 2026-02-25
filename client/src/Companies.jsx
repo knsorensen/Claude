@@ -9,6 +9,7 @@ export default function Companies({ onLogout }) {
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [savedIds, setSavedIds] = useState(new Set())
+  const [savedMap, setSavedMap] = useState({})   // org_number -> db id
   const [detailOrg, setDetailOrg] = useState(null)
 
   useEffect(() => { loadSaved() }, [])
@@ -19,6 +20,7 @@ export default function Companies({ onLogout }) {
     const data = await res.json()
     setSaved(data)
     setSavedIds(new Set(data.map(c => c.org_number)))
+    setSavedMap(Object.fromEntries(data.map(c => [c.org_number, c.id])))
   }
 
   async function handleSearch(e) {
@@ -182,7 +184,9 @@ export default function Companies({ onLogout }) {
         <CompanyDetail
           orgNumber={detailOrg}
           isSaved={savedIds.has(detailOrg)}
+          savedId={savedMap[detailOrg]}
           onSave={company => { handleSave(company); setDetailOrg(null) }}
+          onDelete={async (id) => { await apiFetch(`/api/companies/${id}`, { method: 'DELETE' }); loadSaved() }}
           onClose={() => setDetailOrg(null)}
         />
       )}

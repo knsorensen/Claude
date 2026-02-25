@@ -5,12 +5,15 @@ import Users from './Users'
 import Companies from './Companies'
 import './App.css'
 
-const PAGES = ['Users', 'Companies']
+const PAGES = [
+  { id: 'Companies', label: 'Companies', icon: '🏢' },
+  { id: 'Users',     label: 'Users',     icon: '👥' },
+]
 
 function App() {
   const [user, setUser] = useState(() => getToken() ? {} : null)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [page, setPage] = useState('Users')
+  const [page, setPage] = useState('Companies')
 
   function handleLogin(userData) {
     setUser(userData)
@@ -22,33 +25,43 @@ function App() {
     setShowConfirm(false)
   }
 
+  if (!user) return <Login onLogin={handleLogin} />
+
   return (
-    <div>
-      <header className="app-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-          <h1>Claude App</h1>
-          {user && (
-            <nav style={{ display: 'flex', gap: '4px' }}>
-              {PAGES.map(p => (
-                <button
-                  key={p}
-                  className="btn btn-ghost"
-                  style={{ opacity: page === p ? 1 : 0.6, fontWeight: page === p ? 700 : 400 }}
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </button>
-              ))}
-            </nav>
-          )}
+    <div className="app-layout">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <span>Claude App</span>
+          <small>Dashboard</small>
         </div>
-        {user && (
-          <button className="btn btn-ghost" onClick={() => setShowConfirm(true)}>
+        <nav className="sidebar-nav">
+          {PAGES.map(p => (
+            <button
+              key={p.id}
+              className={`nav-item ${page === p.id ? 'active' : ''}`}
+              onClick={() => setPage(p.id)}
+            >
+              <span className="nav-icon">{p.icon}</span>
+              {p.label}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <button className="nav-item" onClick={() => setShowConfirm(true)}>
+            <span className="nav-icon">↩</span>
             Sign Out
           </button>
-        )}
-      </header>
+        </div>
+      </aside>
 
+      {/* Main */}
+      <div className="main-content">
+        {page === 'Users'     && <Users onLogout={handleLogout} />}
+        {page === 'Companies' && <Companies onLogout={handleLogout} />}
+      </div>
+
+      {/* Logout confirm */}
       {showConfirm && (
         <div className="overlay">
           <div className="dialog">
@@ -61,10 +74,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {!user && <Login onLogin={handleLogin} />}
-      {user && page === 'Users' && <Users onLogout={handleLogout} />}
-      {user && page === 'Companies' && <Companies onLogout={handleLogout} />}
     </div>
   )
 }

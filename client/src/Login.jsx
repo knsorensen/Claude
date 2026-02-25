@@ -5,10 +5,12 @@ export default function Login({ onLogin }) {
   const [mode, setMode] = useState('login')
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setLoading(true)
     const url = mode === 'login' ? '/api/auth/login' : '/api/auth/register'
     const body = mode === 'login'
       ? { email: form.email, password: form.password }
@@ -20,6 +22,7 @@ export default function Login({ onLogin }) {
       body: JSON.stringify(body),
     })
     const data = await res.json()
+    setLoading(false)
     if (!res.ok) return setError(data.error)
     setToken(data.token)
     onLogin(data.user)
@@ -28,13 +31,16 @@ export default function Login({ onLogin }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2>{mode === 'login' ? 'Sign In' : 'Register'}</h2>
+        <div className="auth-logo">
+          <h1>Claude App</h1>
+          <p>Sign in to your account</p>
+        </div>
         <form onSubmit={handleSubmit}>
           {mode === 'register' && (
             <div className="form-group">
               <input
                 className="input"
-                placeholder="Name"
+                placeholder="Full name"
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 required
@@ -44,7 +50,7 @@ export default function Login({ onLogin }) {
           <div className="form-group">
             <input
               className="input"
-              placeholder="Email"
+              placeholder="Email address"
               type="email"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
@@ -62,8 +68,8 @@ export default function Login({ onLogin }) {
             />
           </div>
           {error && <p className="error-msg">{error}</p>}
-          <button className="btn btn-primary btn-full" style={{ marginTop: '8px' }} type="submit">
-            {mode === 'login' ? 'Sign In' : 'Register'}
+          <button className="btn btn-primary btn-full" style={{ marginTop: '12px' }} type="submit" disabled={loading}>
+            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>
         </form>
         <p className="auth-toggle">
