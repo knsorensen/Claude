@@ -3,12 +3,15 @@ const cors = require('cors');
 require('dotenv').config();
 
 const pool = require('./db');
+const usersRouter = require('./routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/api/users', usersRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {
