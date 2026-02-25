@@ -5,6 +5,7 @@ require('dotenv').config();
 const pool = require('./db');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
+const companiesRouter = require('./routes/companies');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/companies', companiesRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -2,11 +2,15 @@ import { useState } from 'react'
 import { getToken, clearToken } from './api'
 import Login from './Login'
 import Users from './Users'
+import Companies from './Companies'
 import './App.css'
+
+const PAGES = ['Users', 'Companies']
 
 function App() {
   const [user, setUser] = useState(() => getToken() ? {} : null)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [page, setPage] = useState('Users')
 
   function handleLogin(userData) {
     setUser(userData)
@@ -21,7 +25,23 @@ function App() {
   return (
     <div>
       <header className="app-header">
-        <h1>Claude App</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+          <h1>Claude App</h1>
+          {user && (
+            <nav style={{ display: 'flex', gap: '4px' }}>
+              {PAGES.map(p => (
+                <button
+                  key={p}
+                  className="btn btn-ghost"
+                  style={{ opacity: page === p ? 1 : 0.6, fontWeight: page === p ? 700 : 400 }}
+                  onClick={() => setPage(p)}
+                >
+                  {p}
+                </button>
+              ))}
+            </nav>
+          )}
+        </div>
         {user && (
           <button className="btn btn-ghost" onClick={() => setShowConfirm(true)}>
             Sign Out
@@ -42,7 +62,9 @@ function App() {
         </div>
       )}
 
-      {user ? <Users onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+      {!user && <Login onLogin={handleLogin} />}
+      {user && page === 'Users' && <Users onLogout={handleLogout} />}
+      {user && page === 'Companies' && <Companies onLogout={handleLogout} />}
     </div>
   )
 }
