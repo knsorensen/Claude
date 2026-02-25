@@ -11,11 +11,11 @@ This file provides context and instructions for Claude Code when working in this
 
 ## Stack
 
-| Layer    | Technology              |
-|----------|-------------------------|
-| Database | PostgreSQL 16           |
-| Backend  | Node.js v24 + Express 5 |
-| Frontend | React + Vite            |
+| Layer    | Technology                  |
+|----------|-----------------------------|
+| Database | PostgreSQL 16               |
+| Backend  | Node.js v24 + Express 5     |
+| Frontend | React + Vite                |
 | Auth     | JWT (jsonwebtoken) + bcrypt |
 
 ## Project Structure
@@ -27,16 +27,18 @@ Development/
 │   │   └── auth.js              # JWT verification middleware
 │   ├── routes/
 │   │   ├── auth.js              # Register and login routes
-│   │   └── users.js             # Users CRUD routes (protected)
+│   │   ├── users.js             # Users CRUD routes (protected)
+│   │   └── companies.js         # Company search + saved companies (protected)
 │   ├── index.js                 # Entry point and route registration
 │   ├── db.js                    # PostgreSQL connection pool
 │   └── .env                     # Environment variables (not committed)
 ├── client/                      # React frontend (port 5173)
 │   ├── src/
 │   │   ├── api.js               # Fetch helper — injects Bearer token automatically
-│   │   ├── App.jsx              # App shell — manages auth state and logout confirmation dialog
+│   │   ├── App.jsx              # App shell — auth state, page navigation, logout dialog
 │   │   ├── Login.jsx            # Login and register page
 │   │   ├── Users.jsx            # Users management UI (CRUD)
+│   │   ├── Companies.jsx        # Company search (brreg.no) and saved companies UI
 │   │   ├── index.css            # Global stylesheet — CSS custom properties, all shared styles
 │   │   └── App.css              # App-level styles (minimal)
 │   └── vite.config.js           # Proxies /api -> localhost:3001
@@ -74,6 +76,21 @@ CREATE TABLE users (
   password_hash VARCHAR(255),
   created_at    TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE companies (
+  id            SERIAL PRIMARY KEY,
+  org_number    VARCHAR(20) UNIQUE NOT NULL,
+  name          VARCHAR(255) NOT NULL,
+  org_form      VARCHAR(100),
+  industry      VARCHAR(255),
+  address       VARCHAR(255),
+  postal_code   VARCHAR(10),
+  city          VARCHAR(100),
+  municipality  VARCHAR(100),
+  employees     INT,
+  founded       DATE,
+  saved_at      TIMESTAMP DEFAULT NOW()
+);
 ```
 
 ## API Endpoints
@@ -93,6 +110,19 @@ CREATE TABLE users (
 - `PUT    /api/users/:id` — `{ name, email }` → update user
 - `DELETE /api/users/:id` — Delete a user
 
+### Companies (Bearer token required)
+- `GET    /api/companies/search?q=` — Search brreg.no by name or org. number (digits = org. no.)
+- `GET    /api/companies` — List saved companies
+- `POST   /api/companies` — Save a company (upserts on org_number)
+- `DELETE /api/companies/:id` — Remove a saved company
+
+## External APIs
+
+- **brreg.no** — `https://data.brreg.no/enhetsregisteret/api/enheter`
+  - Search by name: `?navn=<name>&size=10`
+  - Search by org. number: `?organisasjonsnummer=<number>`
+  - Proxied via `server/routes/companies.js` using `node-fetch`
+
 ## Auth Flow
 
 - Passwords hashed with bcrypt (10 rounds)
@@ -101,6 +131,12 @@ CREATE TABLE users (
 - `client/src/api.js` (`apiFetch`) injects `Authorization: Bearer <token>` on every request
 - 401 responses from the API trigger automatic sign out on the frontend
 
+## Frontend Navigation
+
+- `App.jsx` manages the current page in state (`Users`, `Companies`)
+- Nav buttons in the header switch between pages
+- New pages: add to the `PAGES` array in `App.jsx` and add the conditional render
+
 ## Conventions
 
 - New routes go in `server/routes/` and are registered in `server/index.js`
@@ -108,7 +144,6 @@ CREATE TABLE users (
 - Frontend components go in `client/src/`
 - Always use `apiFetch` (not raw `fetch`) for authenticated API calls in the frontend
 - All styles go in `client/src/index.css` using CSS custom properties — no inline styles, no CSS framework
-- Use CSS classes defined in `index.css`; component-scoped styles go in a matching `.module.css` file if needed
 - Always use parameterised queries (`$1, $2`) — never string-interpolate SQL
 - Never expose `password_hash` in API responses — use explicit column selects
 - `.env` files are gitignored — never commit secrets

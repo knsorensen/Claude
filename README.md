@@ -1,6 +1,6 @@
 # Claude App
 
-A full-stack web application with PostgreSQL, Express REST API, and React frontend — including JWT authentication.
+A full-stack web application with PostgreSQL, Express REST API, and React frontend — including JWT authentication and company search via the Norwegian Business Registry.
 
 ## Stack
 
@@ -20,16 +20,20 @@ Development/
 │   │   └── auth.js              # JWT verification middleware
 │   ├── routes/
 │   │   ├── auth.js              # Register and login routes
-│   │   └── users.js             # Users CRUD routes (protected)
+│   │   ├── users.js             # Users CRUD routes (protected)
+│   │   └── companies.js         # Company search and saved companies routes (protected)
 │   ├── index.js                 # Entry point and route registration
 │   ├── db.js                    # PostgreSQL connection pool
 │   └── .env                     # Environment variables (not committed)
 ├── client/                      # React frontend (port 5173)
 │   ├── src/
 │   │   ├── api.js               # Fetch helper with JWT header injection
-│   │   ├── App.jsx              # App shell — handles auth state
+│   │   ├── App.jsx              # App shell — auth state and page navigation
 │   │   ├── Login.jsx            # Login and register page
-│   │   └── Users.jsx            # Users management UI
+│   │   ├── Users.jsx            # Users management UI
+│   │   ├── Companies.jsx        # Company search and saved companies UI
+│   │   ├── index.css            # Global stylesheet — CSS custom properties
+│   │   └── App.css              # App-level styles
 │   └── vite.config.js           # Proxies /api -> localhost:3001
 ├── .gitignore
 ├── README.md
@@ -50,7 +54,7 @@ cd client && npm run dev
 
 **3. Open in browser:** `http://localhost:5173`
 
-Register an account to get started. Once signed in you can manage users.
+Register an account to get started. Use the navigation in the header to switch between pages.
 
 ## API Endpoints
 
@@ -70,13 +74,22 @@ Register an account to get started. Once signed in you can manage users.
 
 ### Users (requires Bearer token)
 
-| Method | Endpoint          | Body             | Description    |
-|--------|-------------------|------------------|----------------|
-| GET    | /api/users        |                  | List all users |
-| GET    | /api/users/:id    |                  | Get a user     |
-| POST   | /api/users        | `{ name, email }`| Create a user  |
-| PUT    | /api/users/:id    | `{ name, email }`| Update a user  |
-| DELETE | /api/users/:id    |                  | Delete a user  |
+| Method | Endpoint          | Body              | Description    |
+|--------|-------------------|-------------------|----------------|
+| GET    | /api/users        |                   | List all users |
+| GET    | /api/users/:id    |                   | Get a user     |
+| POST   | /api/users        | `{ name, email }` | Create a user  |
+| PUT    | /api/users/:id    | `{ name, email }` | Update a user  |
+| DELETE | /api/users/:id    |                   | Delete a user  |
+
+### Companies (requires Bearer token)
+
+| Method | Endpoint                    | Body        | Description                        |
+|--------|-----------------------------|-------------|------------------------------------|
+| GET    | /api/companies/search?q=    |             | Search brreg.no by name or org. no.|
+| GET    | /api/companies              |             | List saved companies               |
+| POST   | /api/companies              | company obj | Save a company to the database     |
+| DELETE | /api/companies/:id          |             | Remove a saved company             |
 
 ## Database
 
@@ -95,14 +108,29 @@ CREATE TABLE users (
   password_hash VARCHAR(255),
   created_at    TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE companies (
+  id            SERIAL PRIMARY KEY,
+  org_number    VARCHAR(20) UNIQUE NOT NULL,
+  name          VARCHAR(255) NOT NULL,
+  org_form      VARCHAR(100),
+  industry      VARCHAR(255),
+  address       VARCHAR(255),
+  postal_code   VARCHAR(10),
+  city          VARCHAR(100),
+  municipality  VARCHAR(100),
+  employees     INT,
+  founded       DATE,
+  saved_at      TIMESTAMP DEFAULT NOW()
+);
 ```
 
 ## Current State
 
 - JWT authentication — register, login, sign out with confirmation dialog
-- Passwords hashed with bcrypt
-- All user routes protected with JWT middleware
-- Frontend automatically attaches token to every API request
-- Token stored in localStorage; expired tokens trigger automatic sign out
-- Sign out requires confirmation via modal dialog
+- Passwords hashed with bcrypt; all routes protected with JWT middleware
+- Company search via brreg.no (Brønnøysundregistrene) — by name or org. number
+- Search results displayed in table; single click to save to database
+- Saved companies persisted in PostgreSQL with remove option
+- Page navigation in header — Users and Companies pages
 - Global CSS stylesheet with custom properties — clean light theme, no CSS framework
