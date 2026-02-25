@@ -1,4 +1,4 @@
-# Claude
+# Claude App
 
 A full-stack web application with a PostgreSQL database, Express REST API, and React frontend.
 
@@ -14,14 +14,17 @@ A full-stack web application with a PostgreSQL database, Express REST API, and R
 
 ```
 Development/
-├── server/        # Express REST API (port 3001)
-│   ├── index.js   # Entry point and route definitions
-│   ├── db.js      # PostgreSQL connection pool
-│   └── .env       # Environment variables (not committed)
-├── client/        # React frontend (port 5173)
+├── server/                  # Express REST API (port 3001)
+│   ├── routes/
+│   │   └── users.js         # Users CRUD routes
+│   ├── index.js             # Entry point and route registration
+│   ├── db.js                # PostgreSQL connection pool
+│   └── .env                 # Environment variables (not committed)
+├── client/                  # React frontend (port 5173)
 │   ├── src/
-│   │   └── App.jsx     # Main app — fetches and displays API status
-│   └── vite.config.js  # Proxies /api -> localhost:3001
+│   │   ├── App.jsx          # App shell with header
+│   │   └── Users.jsx        # Users management UI
+│   └── vite.config.js       # Proxies /api -> localhost:3001
 ├── .gitignore
 ├── README.md
 └── CLAUDE.md
@@ -43,10 +46,22 @@ cd client && npm run dev
 
 ## API Endpoints
 
-| Method | Endpoint          | Description              |
-|--------|-------------------|--------------------------|
-| GET    | /api/health       | API health check         |
-| GET    | /api/health/db    | Database health check    |
+### Health
+
+| Method | Endpoint         | Description           |
+|--------|------------------|-----------------------|
+| GET    | /api/health      | API health check      |
+| GET    | /api/health/db   | Database health check |
+
+### Users
+
+| Method | Endpoint         | Description       |
+|--------|------------------|-------------------|
+| GET    | /api/users       | List all users    |
+| GET    | /api/users/:id   | Get a user        |
+| POST   | /api/users       | Create a user     |
+| PUT    | /api/users/:id   | Update a user     |
+| DELETE | /api/users/:id   | Delete a user     |
 
 ## Database
 
@@ -55,8 +70,19 @@ cd client && npm run dev
 - **User:** appuser
 - **Credentials:** stored in `server/.env` (never committed)
 
+### Schema
+
+```sql
+CREATE TABLE users (
+  id         SERIAL PRIMARY KEY,
+  name       VARCHAR(100) NOT NULL,
+  email      VARCHAR(255) UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
 ## Current State
 
-- Frontend connected to backend API via Vite proxy
-- Health status for API and database displayed on the homepage
-- End-to-end stack verified and working locally
+- Full-stack connected: React frontend -> Express API -> PostgreSQL
+- Users management UI with create, edit, and delete
+- Inline error handling for duplicate emails and missing fields
