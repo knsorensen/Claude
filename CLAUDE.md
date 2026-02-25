@@ -16,22 +16,28 @@ This file provides context and instructions for Claude Code when working in this
 | Database | PostgreSQL 16           |
 | Backend  | Node.js v24 + Express 5 |
 | Frontend | React + Vite            |
+| Auth     | JWT (jsonwebtoken) + bcrypt |
 
 ## Project Structure
 
 ```
 Development/
-├── server/                  # Express REST API (port 3001)
+├── server/                      # Express REST API (port 3001)
+│   ├── middleware/
+│   │   └── auth.js              # JWT verification middleware
 │   ├── routes/
-│   │   └── users.js         # Users CRUD routes
-│   ├── index.js             # Entry point and route registration
-│   ├── db.js                # PostgreSQL connection pool
-│   └── .env                 # Environment variables (not committed)
-├── client/                  # React frontend (port 5173)
+│   │   ├── auth.js              # Register and login routes
+│   │   └── users.js             # Users CRUD routes (protected)
+│   ├── index.js                 # Entry point and route registration
+│   ├── db.js                    # PostgreSQL connection pool
+│   └── .env                     # Environment variables (not committed)
+├── client/                      # React frontend (port 5173)
 │   ├── src/
-│   │   ├── App.jsx          # App shell with header
-│   │   └── Users.jsx        # Users management UI
-│   └── vite.config.js       # Proxies /api -> localhost:3001
+│   │   ├── api.js               # Fetch helper — injects Bearer token automatically
+│   │   ├── App.jsx              # App shell — manages auth state
+│   │   ├── Login.jsx            # Login and register page
+│   │   └── Users.jsx            # Users management UI (CRUD)
+│   └── vite.config.js           # Proxies /api -> localhost:3001
 ├── .gitignore
 ├── README.md
 └── CLAUDE.md
@@ -54,38 +60,54 @@ cd client && npm run dev
 - **Host:** localhost:5432
 - **Database:** appdb
 - **User:** appuser
-- **Password:** apppassword (stored in `server/.env`, never committed)
+- **Password:** apppassword (in `server/.env`, never committed)
 
 ### Schema
 
 ```sql
 CREATE TABLE users (
-  id         SERIAL PRIMARY KEY,
-  name       VARCHAR(100) NOT NULL,
-  email      VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  id            SERIAL PRIMARY KEY,
+  name          VARCHAR(100) NOT NULL,
+  email         VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255),
+  created_at    TIMESTAMP DEFAULT NOW()
 );
 ```
 
 ## API Endpoints
 
-### Health
+### Auth (public)
+- `POST /api/auth/register` — `{ name, email, password }` → `{ token, user }`
+- `POST /api/auth/login` — `{ email, password }` → `{ token, user }`
+
+### Health (public)
 - `GET /api/health` — API health check
 - `GET /api/health/db` — Database health check
 
-### Users
+### Users (Bearer token required)
 - `GET    /api/users` — List all users
 - `GET    /api/users/:id` — Get a user
-- `POST   /api/users` — Create a user `{ name, email }`
-- `PUT    /api/users/:id` — Update a user `{ name, email }`
+- `POST   /api/users` — `{ name, email }` → create user
+- `PUT    /api/users/:id` — `{ name, email }` → update user
 - `DELETE /api/users/:id` — Delete a user
+
+## Auth Flow
+
+- Passwords hashed with bcrypt (10 rounds)
+- JWT tokens expire after 7 days
+- Token stored in `localStorage` on the frontend
+- `client/src/api.js` (`apiFetch`) injects `Authorization: Bearer <token>` on every request
+- 401 responses from the API trigger automatic sign out on the frontend
 
 ## Conventions
 
 - New routes go in `server/routes/` and are registered in `server/index.js`
+- Protect routes by adding `requireAuth` middleware from `server/middleware/auth.js`
 - Frontend components go in `client/src/`
+- Always use `apiFetch` (not raw `fetch`) for authenticated API calls in the frontend
 - Use inline styles in React components (no CSS framework)
 - Always use parameterised queries (`$1, $2`) — never string-interpolate SQL
+- Never expose `password_hash` in API responses — use explicit column selects
 - `.env` files are gitignored — never commit secrets
 
 ## Git Workflow
