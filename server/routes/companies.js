@@ -41,6 +41,48 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// GET /api/companies/details/:orgNumber — full details from brreg.no
+router.get('/details/:orgNumber', async (req, res) => {
+  try {
+    const response = await fetch(`${BRREG_URL}/${req.params.orgNumber}`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (response.status === 404) return res.status(404).json({ error: 'Company not found in brreg.no' });
+    if (!response.ok) return res.status(502).json({ error: 'Failed to fetch from brreg.no' });
+    const e = await response.json();
+    res.json({
+      org_number:        e.organisasjonsnummer,
+      name:              e.navn,
+      org_form:          e.organisasjonsform?.beskrivelse || null,
+      org_form_code:     e.organisasjonsform?.kode || null,
+      website:           e.hjemmeside || null,
+      phone:             e.telefon || null,
+      email:             e.epostadresse || null,
+      employees:         e.antallAnsatte || null,
+      founded:           e.stiftelsesdato || null,
+      registered:        e.registreringsdatoEnhetsregisteret || null,
+      last_annual_report: e.sisteInnsendteAarsregnskap || null,
+      vat_registered:    e.registrertIMvaregisteret || false,
+      bankrupt:          e.konkurs || false,
+      liquidation:       e.underAvvikling || false,
+      industry1:         e.naeringskode1 ? `${e.naeringskode1.kode} — ${e.naeringskode1.beskrivelse}` : null,
+      industry2:         e.naeringskode2 ? `${e.naeringskode2.kode} — ${e.naeringskode2.beskrivelse}` : null,
+      industry3:         e.naeringskode3 ? `${e.naeringskode3.kode} — ${e.naeringskode3.beskrivelse}` : null,
+      business_address:  e.forretningsadresse ? [
+        e.forretningsadresse.adresse?.join(', '),
+        `${e.forretningsadresse.postnummer} ${e.forretningsadresse.poststed}`,
+        e.forretningsadresse.kommune,
+      ].filter(Boolean).join(', ') : null,
+      postal_address:    e.postadresse ? [
+        e.postadresse.adresse?.join(', '),
+        `${e.postadresse.postnummer} ${e.postadresse.poststed}`,
+      ].filter(Boolean).join(', ') : null,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/companies — list saved companies
 router.get('/', async (req, res) => {
   try {

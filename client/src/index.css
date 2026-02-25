@@ -264,3 +264,124 @@ tbody tr:hover { background: #fafbfc; }
 .dialog-actions .btn {
   flex: 1;
 }
+
+/* --- Company Detail Modal --- */
+.detail-dialog {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 680px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--color-border);
+  gap: 16px;
+}
+
+.detail-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.detail-orgnr {
+  font-size: 13px;
+  color: var(--color-muted);
+  font-family: monospace;
+  margin-right: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badge-danger  { background: #fee2e2; color: #b91c1c; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+
+.detail-body {
+  overflow-y: auto;
+  padding: 20px 28px 28px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 560px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+.detail-section {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.detail-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+}
+
+.detail-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+
+.detail-dl dt {
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.detail-dl dd {
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.detail-dl a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.detail-dl a:hover { text-decoration: underline; }
+
+/* --- Utilities --- */
+.section-label {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.link-text {
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.link-text:hover { text-decoration: underline; }

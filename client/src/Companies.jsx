@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from './api'
+import CompanyDetail from './CompanyDetail'
 
 export default function Companies({ onLogout }) {
   const [query, setQuery] = useState('')
@@ -8,6 +9,7 @@ export default function Companies({ onLogout }) {
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [savedIds, setSavedIds] = useState(new Set())
+  const [detailOrg, setDetailOrg] = useState(null)
 
   useEffect(() => { loadSaved() }, [])
 
@@ -75,9 +77,7 @@ export default function Companies({ onLogout }) {
       {/* Search results */}
       {results.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
-          <h3 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Results ({results.length})
-          </h3>
+          <h3 className="section-label">Results ({results.length})</h3>
           <div className="table-wrap">
             <table>
               <thead>
@@ -95,12 +95,20 @@ export default function Companies({ onLogout }) {
                 {results.map(c => (
                   <tr key={c.org_number}>
                     <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>{c.org_number}</td>
-                    <td style={{ fontWeight: 500 }}>{c.name}</td>
+                    <td>
+                      <span className="link-text" onClick={() => setDetailOrg(c.org_number)}>
+                        {c.name}
+                      </span>
+                    </td>
                     <td>{c.org_form || '—'}</td>
                     <td>{c.industry || '—'}</td>
                     <td>{c.city || '—'}</td>
                     <td>{c.employees?.toLocaleString('no-NO') ?? '—'}</td>
-                    <td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <button className="btn btn-secondary btn-sm" onClick={() => setDetailOrg(c.org_number)}>
+                        View
+                      </button>
+                      {' '}
                       {savedIds.has(c.org_number) ? (
                         <span style={{ color: 'var(--color-muted)', fontSize: '13px' }}>Saved</span>
                       ) : (
@@ -119,9 +127,7 @@ export default function Companies({ onLogout }) {
 
       {/* Saved companies */}
       <section>
-        <h3 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          Saved Companies ({saved.length})
-        </h3>
+        <h3 className="section-label">Saved Companies ({saved.length})</h3>
         <div className="table-wrap">
           <table>
             <thead>
@@ -138,18 +144,28 @@ export default function Companies({ onLogout }) {
             </thead>
             <tbody>
               {saved.length === 0 && (
-                <tr className="empty-row"><td colSpan={8}>No saved companies yet. Search above to find and save companies.</td></tr>
+                <tr className="empty-row">
+                  <td colSpan={8}>No saved companies yet. Search above to find and save companies.</td>
+                </tr>
               )}
               {saved.map(c => (
                 <tr key={c.id}>
                   <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>{c.org_number}</td>
-                  <td style={{ fontWeight: 500 }}>{c.name}</td>
+                  <td>
+                    <span className="link-text" onClick={() => setDetailOrg(c.org_number)}>
+                      {c.name}
+                    </span>
+                  </td>
                   <td>{c.org_form || '—'}</td>
                   <td>{c.industry || '—'}</td>
                   <td>{c.city || '—'}</td>
                   <td>{c.employees?.toLocaleString('no-NO') ?? '—'}</td>
                   <td>{c.founded ? new Date(c.founded).getFullYear() : '—'}</td>
-                  <td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setDetailOrg(c.org_number)}>
+                      View
+                    </button>
+                    {' '}
                     <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c.id)}>
                       Remove
                     </button>
@@ -160,6 +176,16 @@ export default function Companies({ onLogout }) {
           </table>
         </div>
       </section>
+
+      {/* Detail modal */}
+      {detailOrg && (
+        <CompanyDetail
+          orgNumber={detailOrg}
+          isSaved={savedIds.has(detailOrg)}
+          onSave={company => { handleSave(company); setDetailOrg(null) }}
+          onClose={() => setDetailOrg(null)}
+        />
+      )}
     </div>
   )
 }
